@@ -38,11 +38,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTime $birthDate = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $balance = null;
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, options: ['default' => '0.00'])]
+    private string $balance = '0.00';
 
-    #[ORM\Column]
-    private ?bool $isSuspended = null;
+    #[ORM\Column(options: ['default' => false])]
+    private bool $isSuspended = false;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTime $selfExcludedUntil = null;
@@ -70,6 +70,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(nullable: true)]
     private ?\DateTime $pendingWeeklyBetLimitAt = null;
+
+    public function isCurrentlySelfExcluded(): bool
+    {
+        return $this->selfExcludedUntil !== null && $this->selfExcludedUntil > new \DateTime();
+    }
 
     public function getId(): ?int
     {
@@ -170,19 +175,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getBalance(): ?string
+    public function getBalance(): float
     {
-        return $this->balance;
+        return (float) $this->balance;
     }
 
-    public function setBalance(string $balance): static
+    public function setBalance(float $balance): static
     {
-        $this->balance = $balance;
+        $this->balance = (string) $balance;
 
         return $this;
     }
 
-    public function isSuspended(): ?bool
+    public function isSuspended(): bool
     {
         return $this->isSuspended;
     }
