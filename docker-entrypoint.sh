@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+echo "==> Uploads dir"
+mkdir -p public/uploads/logos
+
 echo "==> Cache warmup"
 php bin/console cache:warmup --env=prod --no-debug
 
