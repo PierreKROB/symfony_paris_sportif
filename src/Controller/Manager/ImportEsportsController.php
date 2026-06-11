@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/manager/import', name: 'manager_import_')]
@@ -54,7 +54,7 @@ class ImportEsportsController extends AbstractController
         $existing = $this->em->getRepository(SportEvent::class)->findOneBy(['riotMatchId' => $matchId]);
         if ($existing) {
             $this->addFlash('warning', 'Ce match a déjà été importé.');
-            return $this->redirectToRoute('manager_sport_event_index');
+            return $this->redirectToRoute('manager_event_index');
         }
 
         $event = (new SportEvent())
@@ -78,6 +78,6 @@ class ImportEsportsController extends AbstractController
         $this->em->flush();
 
         $this->addFlash('success', "Match importé : {$event->getName()}");
-        return $this->redirectToRoute('manager_sport_event_index');
+        return $this->redirectToRoute('manager_event_index');
     }
 }

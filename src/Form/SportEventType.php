@@ -15,7 +15,7 @@ class SportEventType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, ['label' => 'Nom du match'])
-            ->add('tournament', TextType::class, ['label' => 'Tournoi', 'attr' => ['placeholder' => 'ex: MSI 2025']])
+            ->add('tournament', TextType::class, ['label' => 'Tournoi', 'attr' => ['placeholder' => 'ex: MSI 2026']])
             ->add('teamA', TextType::class, ['label' => 'Équipe A', 'attr' => ['placeholder' => 'ex: T1']])
             ->add('teamB', TextType::class, ['label' => 'Équipe B', 'attr' => ['placeholder' => 'ex: Gen.G']])
             ->add('startsAt', DateTimeType::class, [

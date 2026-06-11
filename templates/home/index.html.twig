@@ -26,7 +26,18 @@
                         <i data-lucide="gamepad-2" class="w-3 h-3"></i>
                         {{ event.tournament }}
                     </span>
-                    <span class="badge badge-success badge-sm">Live</span>
+                    {% set now = "now"|date('U') %}
+                    {% set start = event.startsAt|date('U') %}
+                    {% if start <= now %}
+                        <span class="badge badge-success badge-sm gap-1">
+                            <i data-lucide="radio" class="w-3 h-3"></i> Live
+                        </span>
+                    {% else %}
+                        <span class="badge badge-info badge-sm gap-1">
+                            <i data-lucide="clock" class="w-3 h-3"></i>
+                            {{ event.startsAt|date('d/m H:i') }}
+                        </span>
+                    {% endif %}
                 </div>
 
                 <div class="text-center py-2">
@@ -36,8 +47,8 @@
                         {{ event.teamB }}
                     </h2>
                     <p class="text-xs text-base-content/40 mt-1 flex items-center justify-center gap-1">
-                        <i data-lucide="calendar" class="w-3 h-3"></i>
-                        {{ event.startsAt|date('d/m/Y à H:i') }}
+                        <i data-lucide="swords" class="w-3 h-3"></i>
+                        {{ event.tournament }}
                     </p>
                 </div>
 
