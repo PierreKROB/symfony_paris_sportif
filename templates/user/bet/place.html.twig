@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Parier — {{ outcome.label }}{% endblock %}
+
+{% block body %}
+<div class="flex justify-center">
+    <div class="card w-full max-w-md bg-base-100 shadow-xl">
+        <div class="card-body">
+            <div class="flex flex-col items-center gap-1 mb-4">
+                <div class="p-3 bg-primary/10 rounded-full">
+                    <i data-lucide="target" class="w-7 h-7 text-primary"></i>
+                </div>
+                <h2 class="text-xl font-bold">Placer un pari</h2>
+            </div>
+
+            <div class="bg-base-200 rounded-xl p-4 text-center space-y-1">
+                <p class="text-xs text-base-content/50 flex items-center justify-center gap-1">
+                    <i data-lucide="gamepad-2" class="w-3 h-3"></i> {{ outcome.event.tournament }}
+                </p>
+                <p class="text-xl font-bold">
+                    {{ outcome.event.teamA }} <span class="text-primary mx-2 font-normal text-base">VS</span> {{ outcome.event.teamB }}
+                </p>
+                <p class="text-xs text-base-content/50 flex items-center justify-center gap-1">
+                    <i data-lucide="calendar" class="w-3 h-3"></i>
+                    {{ outcome.event.startsAt|date('d/m/Y à H:i') }}
+                </p>
+                <div class="divider my-1"></div>
+                <p class="text-xs text-base-content/50">Vous pariez sur</p>
+                <p class="text-lg font-bold text-primary">{{ outcome.label }}</p>
+                <p class="text-3xl font-bold">
+                    <span class="text-base text-base-content/50">Cote</span>
+                    <span class="text-success">x{{ outcome.odds }}</span>
+                </p>
+            </div>
+
+            <p class="text-sm text-center text-base-content/50 flex items-center justify-center gap-1">
+                <i data-lucide="wallet" class="w-4 h-4"></i>
+                Solde : <strong class="ml-1">{{ app.user.balance|number_format(2) }} €</strong>
+            </p>
+
+            {{ form_start(form) }}
+                <div class="form-control my-3">
+                    {{ form_label(form.amount, null, {label_attr: {class: 'label-text'}}) }}
+                    {{ form_widget(form.amount, {attr: {class: 'input input-bordered w-full mt-1', id: 'amount-input'}}) }}
+                    {{ form_errors(form.amount) }}
+                </div>
+                <div class="bg-base-200 rounded-lg p-3 text-center mb-4">
+                    <p class="text-xs text-base-content/50">Gain potentiel</p>
+                    <p class="text-2xl font-bold text-success" id="gain-preview">—</p>
+                </div>
+                <button type="submit" class="btn btn-primary w-full gap-2">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    Confirmer le pari
+                </button>
+            {{ form_end(form) }}
+
+            <a href="{{ path('app_home') }}" class="btn btn-ghost btn-sm w-full gap-1.5 mt-1">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour aux matchs
+            </a>
+
+            <p class="text-xs text-center text-base-content/30 flex items-center justify-center gap-1 mt-1">
+                <i data-lucide="shield-alert" class="w-3 h-3"></i>
+                Jouer comporte des risques. Fixez-vous des limites.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    const input = document.getElementById('amount-input');
+    const preview = document.getElementById('gain-preview');
+    const odds = {{ outcome.odds }};
+    input?.addEventListener('input', () => {
+        const v = parseFloat(input.value);
+        preview.textContent = isNaN(v) || v <= 0 ? '—' : (v * odds).toFixed(2) + ' €';
+    });
+</script>
+{% endblock %}

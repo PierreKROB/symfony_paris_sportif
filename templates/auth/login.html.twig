@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion — Nexus Bet{% endblock %}
+
+{% block body %}
+<div class="flex justify-center items-center py-12">
+    <div class="card w-full max-w-md bg-base-100 shadow-xl">
+        <div class="card-body">
+            <div class="flex flex-col items-center gap-2 mb-6">
+                <div class="p-3 bg-primary/10 rounded-full">
+                    <i data-lucide="sword" class="w-8 h-8 text-primary"></i>
+                </div>
+                <h2 class="text-2xl font-bold">Connexion</h2>
+                <p class="text-sm text-base-content/50">Bon retour sur Nexus Bet</p>
+            </div>
+
+            {% if error %}
+                <div class="alert alert-error mb-4">
+                    <i data-lucide="circle-x" class="w-5 h-5"></i>
+                    <span>{{ error.messageKey|trans(error.messageData, 'security') }}</span>
+                </div>
+            {% endif %}
+
+            <form method="post" action="{{ path('app_login') }}" class="space-y-4">
+                <div class="form-control">
+                    <label class="label"><span class="label-text flex items-center gap-1.5">
+                        <i data-lucide="mail" class="w-4 h-4"></i> Email
+                    </span></label>
+                    <input type="email" name="email" value="{{ last_username }}"
+                           class="input input-bordered" placeholder="votre@email.com" required autofocus>
+                </div>
+                <div class="form-control">
+                    <label class="label"><span class="label-text flex items-center gap-1.5">
+                        <i data-lucide="lock" class="w-4 h-4"></i> Mot de passe
+                    </span></label>
+                    <input type="password" name="password" class="input input-bordered" required>
+                </div>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                <button type="submit" class="btn btn-primary w-full gap-2">
+                    <i data-lucide="log-in" class="w-4 h-4"></i>
+                    Se connecter
+                </button>
+            </form>
+
+            <div class="divider text-xs text-base-content/30">ou</div>
+            <a href="{{ path('app_register') }}" class="btn btn-ghost w-full gap-2">
+                <i data-lucide="user-plus" class="w-4 h-4"></i>
+                Créer un compte
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

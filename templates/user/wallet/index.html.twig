@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon portefeuille{% endblock %}
+
+{% block body %}
+<div class="flex justify-between items-center mb-6">
+    <div class="flex items-center gap-3">
+        <i data-lucide="wallet" class="w-7 h-7 text-primary"></i>
+        <h1 class="text-2xl font-bold">Mon portefeuille</h1>
+    </div>
+    <a href="{{ path('user_wallet_deposit') }}" class="btn btn-primary btn-sm gap-1.5">
+        <i data-lucide="plus" class="w-4 h-4"></i> Déposer
+    </a>
+</div>
+
+<div class="stats shadow mb-8 w-full">
+    <div class="stat">
+        <div class="stat-figure text-primary">
+            <i data-lucide="circle-dollar-sign" class="w-8 h-8"></i>
+        </div>
+        <div class="stat-title">Solde actuel</div>
+        <div class="stat-value text-primary">{{ app.user.balance|number_format(2) }} €</div>
+        <div class="stat-desc">Argent fictif</div>
+    </div>
+    <div class="stat">
+        <div class="stat-figure text-secondary">
+            <i data-lucide="receipt" class="w-8 h-8"></i>
+        </div>
+        <div class="stat-title">Transactions</div>
+        <div class="stat-value">{{ transactions|length }}</div>
+        <div class="stat-desc">Au total</div>
+    </div>
+</div>
+
+<h2 class="text-lg font-semibold mb-3 flex items-center gap-2">
+    <i data-lucide="history" class="w-5 h-5"></i> Historique
+</h2>
+
+<div class="overflow-x-auto">
+    <table class="table table-zebra w-full">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th class="text-right">Montant</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for t in transactions %}
+            {% set isCredit = t.type in ['GAIN', 'DEPOT', 'REMBOURSEMENT'] %}
+            <tr>
+                <td class="text-sm text-base-content/50">{{ t.createdAt|date('d/m/Y H:i') }}</td>
+                <td>
+                    <span class="badge badge-sm {{ isCredit ? 'badge-success' : 'badge-error' }}">
+                        {{ t.type }}
+                    </span>
+                </td>
+                <td class="text-sm">{{ t.description }}</td>
+                <td class="text-right font-bold {{ isCredit ? 'text-success' : 'text-error' }}">
+                    {{ isCredit ? '+' : '-' }}{{ t.amount|number_format(2) }} €
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4" class="text-center text-base-content/40 py-8">
+                    <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-30"></i>
+                    <p>Aucune transaction.</p>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

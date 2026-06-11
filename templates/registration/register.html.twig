@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription — Nexus Bet{% endblock %}
+
+{% block body %}
+<div class="flex justify-center items-center min-h-[60vh]">
+    <div class="card w-full max-w-md bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title text-2xl justify-center mb-4">🎮 Créer un compte</h2>
+
+            {{ form_start(form, {attr: {class: 'space-y-4'}}) }}
+                <div class="form-control">
+                    {{ form_label(form.username, null, {label_attr: {class: 'label-text'}}) }}
+                    {{ form_widget(form.username, {attr: {class: 'input input-bordered w-full mt-1'}}) }}
+                    {{ form_errors(form.username) }}
+                </div>
+                <div class="form-control">
+                    {{ form_label(form.email, null, {label_attr: {class: 'label-text'}}) }}
+                    {{ form_widget(form.email, {attr: {class: 'input input-bordered w-full mt-1'}}) }}
+                    {{ form_errors(form.email) }}
+                </div>
+                <div class="form-control">
+                    {{ form_label(form.birthDate, null, {label_attr: {class: 'label-text'}}) }}
+                    {{ form_widget(form.birthDate, {attr: {class: 'input input-bordered w-full mt-1'}}) }}
+                    {{ form_errors(form.birthDate) }}
+                </div>
+                <div class="form-control">
+                    {{ form_label(form.plainPassword, null, {label_attr: {class: 'label-text'}}) }}
+                    {{ form_widget(form.plainPassword, {attr: {class: 'input input-bordered w-full mt-1'}}) }}
+                    {{ form_errors(form.plainPassword) }}
+                </div>
+
+                <div class="alert alert-warning text-xs">
+                    ⚠️ Réservé aux +18 ans. Jouer peut créer une dépendance.
+                </div>
+
+                <button type="submit" class="btn btn-primary w-full">S'inscrire</button>
+            {{ form_end(form) }}
+
+            <div class="text-center text-sm mt-2">
+                Déjà un compte ? <a href="{{ path('app_login') }}" class="link link-primary">Se connecter</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

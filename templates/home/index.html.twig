@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nexus Bet — Matchs LoL{% endblock %}
+
+{% block body %}
+<div class="mb-8">
+    <div class="flex items-center gap-3 mb-1">
+        <i data-lucide="trophy" class="w-8 h-8 text-primary"></i>
+        <h1 class="text-3xl font-bold">Matchs en cours</h1>
+    </div>
+    <p class="text-base-content/50 ml-11">MSI 2025 · Pariez sur vos équipes favorites</p>
+</div>
+
+{% if events is empty %}
+    <div class="alert">
+        <i data-lucide="info" class="w-5 h-5"></i>
+        <span>Aucun match disponible pour le moment.</span>
+    </div>
+{% else %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for event in events %}
+        <div class="card bg-base-100 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-200">
+            <div class="card-body gap-3">
+                <div class="flex justify-between items-center">
+                    <span class="badge badge-outline badge-sm gap-1">
+                        <i data-lucide="gamepad-2" class="w-3 h-3"></i>
+                        {{ event.tournament }}
+                    </span>
+                    <span class="badge badge-success badge-sm">Live</span>
+                </div>
+
+                <div class="text-center py-2">
+                    <h2 class="text-xl font-bold">
+                        {{ event.teamA }}
+                        <span class="text-primary mx-3 text-base font-normal">VS</span>
+                        {{ event.teamB }}
+                    </h2>
+                    <p class="text-xs text-base-content/40 mt-1 flex items-center justify-center gap-1">
+                        <i data-lucide="calendar" class="w-3 h-3"></i>
+                        {{ event.startsAt|date('d/m/Y à H:i') }}
+                    </p>
+                </div>
+
+                <div class="divider my-0"></div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    {% for outcome in event.outcomes %}
+                    <a href="{{ is_granted('ROLE_USER') ? path('user_bet_place', {id: outcome.id}) : path('app_login') }}"
+                       class="btn btn-outline btn-sm flex-col h-auto py-3 hover:btn-primary transition-all">
+                        <span class="text-xs text-base-content/70">{{ outcome.label }}</span>
+                        <span class="text-lg font-bold">{{ outcome.odds }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+
+                {% if not is_granted('ROLE_USER') %}
+                <p class="text-xs text-center text-base-content/40 flex items-center justify-center gap-1">
+                    <i data-lucide="lock" class="w-3 h-3"></i>
+                    <a href="{{ path('app_login') }}" class="underline">Connectez-vous</a> pour parier
+                </p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="alert alert-warning mt-10 text-sm">
+    <i data-lucide="shield-alert" class="w-5 h-5 shrink-0"></i>
+    <span><strong>Jeu responsable :</strong> Les paris sont fictifs. Jouer peut créer une dépendance. Réservé aux +18 ans.</span>
+</div>
+{% endblock %}

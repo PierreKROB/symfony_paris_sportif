@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes paris{% endblock %}
+
+{% block body %}
+<h1 class="text-2xl font-bold mb-6">🎲 Mes paris</h1>
+
+<div class="overflow-x-auto">
+    <table class="table table-zebra w-full">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Match</th>
+                <th>Issue pariée</th>
+                <th>Mise</th>
+                <th>Cote</th>
+                <th>Gain potentiel</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for bet in bets %}
+            {% set statusClass = {
+                'EN_ATTENTE': 'badge-warning',
+                'GAGNE': 'badge-success',
+                'PERDU': 'badge-error',
+                'ANNULE': 'badge-ghost'
+            }[bet.status] ?? 'badge-ghost' %}
+            <tr>
+                <td class="text-sm text-base-content/60">{{ bet.createdAt|date('d/m/Y H:i') }}</td>
+                <td class="font-semibold">{{ bet.outcome.event.teamA }} vs {{ bet.outcome.event.teamB }}</td>
+                <td>{{ bet.outcome.label }}</td>
+                <td>{{ bet.amount|number_format(2) }} €</td>
+                <td class="text-primary font-bold">x{{ bet.lockedOdds }}</td>
+                <td class="font-semibold">{{ bet.potentialGain|number_format(2) }} €</td>
+                <td><span class="badge badge-sm {{ statusClass }}">{{ bet.status }}</span></td>
+            </tr>
+        {% else %}
+            <tr><td colspan="7" class="text-center text-base-content/40">Aucun pari pour l'instant.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

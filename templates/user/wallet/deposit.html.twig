@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Déposer des fonds{% endblock %}
+
+{% block body %}
+<div class="flex justify-center">
+    <div class="card w-full max-w-sm bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title justify-center">💳 Dépôt fictif</h2>
+            <p class="text-sm text-center text-base-content/60 mb-4">
+                Solde actuel : <strong>{{ app.user.balance|number_format(2) }} €</strong>
+            </p>
+
+            {{ form_start(form) }}
+                <div class="form-control mb-4">
+                    {{ form_label(form.amount, null, {label_attr: {class: 'label-text'}}) }}
+                    {{ form_widget(form.amount, {attr: {class: 'input input-bordered w-full mt-1'}}) }}
+                    {{ form_errors(form.amount) }}
+                </div>
+                <button type="submit" class="btn btn-primary w-full">Déposer</button>
+            {{ form_end(form) }}
+
+            <a href="{{ path('user_wallet_index') }}" class="btn btn-ghost btn-sm mt-2 w-full">← Retour</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

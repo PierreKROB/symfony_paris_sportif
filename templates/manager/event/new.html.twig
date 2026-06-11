@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau match{% endblock %}
+
+{% block body %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">➕ Nouveau match</h1>
+    <a href="{{ path('manager_event_index') }}" class="btn btn-ghost btn-sm">← Retour</a>
+</div>
+
+<div class="card bg-base-100 shadow-xl max-w-lg">
+    <div class="card-body">
+        {{ form_start(form, {attr: {class: 'space-y-4'}}) }}
+            {% for field in form %}
+                <div class="form-control">
+                    {{ form_label(field, null, {label_attr: {class: 'label-text font-medium'}}) }}
+                    {{ form_widget(field, {attr: {class: 'input input-bordered w-full mt-1'}}) }}
+                    {{ form_errors(field) }}
+                </div>
+            {% endfor %}
+            <div class="alert alert-info text-sm">
+                💡 Les issues (Victoire équipe A / B) seront créées automatiquement avec une cote de 1.50.
+            </div>
+            <button type="submit" class="btn btn-primary w-full">Créer le match</button>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}
