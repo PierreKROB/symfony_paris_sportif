@@ -1,0 +1,25 @@
+[Unit]
+Description=Nexus Bet — Symfony app (PHP built-in server)
+After=network.target mysql.service
+Wants=mysql.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/nexus-bet
+ExecStart=php -S 0.0.0.0:3005 -t public/
+Restart=on-failure
+RestartSec=5s
+
+# Variables d'env minimales — le reste est dans .env.local
+Environment=APP_ENV=prod
+Environment=APP_DEBUG=0
+
+# Logs
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nexus-bet
+
+[Install]
+WantedBy=multi-user.target

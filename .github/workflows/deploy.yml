@@ -1,0 +1,52 @@
+name: Deploy Nexus Bet
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy to production
+    runs-on: self-hosted
+
+    steps:
+      - name: Pull latest code
+        run: |
+          cd /var/www/nexus-bet
+          git pull origin main
+
+      - name: Install PHP dependencies
+        run: |
+          cd /var/www/nexus-bet
+          composer install --no-dev --optimize-autoloader --no-interaction
+
+      - name: Write .env.local
+        run: |
+          cat > /var/www/nexus-bet/.env.local <<EOF
+          APP_ENV=prod
+          APP_SECRET=${{ secrets.APP_SECRET }}
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          RIOT_API_KEY=${{ secrets.RIOT_API_KEY }}
+          RIOT_PLATFORM=euw1
+          RIOT_REGION=europe
+          LOL_ESPORTS_API_KEY=${{ secrets.LOL_ESPORTS_API_KEY }}
+          EOF
+
+      - name: Clear & warmup cache
+        run: |
+          cd /var/www/nexus-bet
+          php bin/console cache:clear --env=prod --no-debug
+          php bin/console cache:warmup --env=prod --no-debug
+
+      - name: Run migrations
+        run: |
+          cd /var/www/nexus-bet
+          php bin/console doctrine:migrations:migrate --no-interaction --env=prod
+
+      - name: Restart app service
+        run: sudo systemctl restart nexus-bet
+
+      - name: Health check
+        run: |
+          sleep 2
+          curl -sf http://127.0.0.1:3005 > /dev/null && echo "OK" || echo "WARN: health check failed"
