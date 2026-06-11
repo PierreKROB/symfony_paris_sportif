@@ -10,43 +10,45 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Pull latest code
-        run: |
-          cd /var/www/nexus-bet
-          git pull origin main
-
-      - name: Install PHP dependencies
-        run: |
-          cd /var/www/nexus-bet
-          composer install --no-dev --optimize-autoloader --no-interaction
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Write .env.local
+        env:
+          APP_SECRET: ${{ secrets.APP_SECRET }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          RIOT_API_KEY: ${{ secrets.RIOT_API_KEY }}
+          LOL_ESPORTS_API_KEY: ${{ secrets.LOL_ESPORTS_API_KEY }}
         run: |
-          cat > /var/www/nexus-bet/.env.local <<EOF
+          cat > .env.local << EOF
           APP_ENV=prod
-          APP_SECRET=${{ secrets.APP_SECRET }}
-          DATABASE_URL=${{ secrets.DATABASE_URL }}
-          RIOT_API_KEY=${{ secrets.RIOT_API_KEY }}
+          APP_SECRET=${APP_SECRET}
+          DATABASE_URL=${DATABASE_URL}
+          RIOT_API_KEY=${RIOT_API_KEY}
           RIOT_PLATFORM=euw1
           RIOT_REGION=europe
-          LOL_ESPORTS_API_KEY=${{ secrets.LOL_ESPORTS_API_KEY }}
+          LOL_ESPORTS_API_KEY=${LOL_ESPORTS_API_KEY}
           EOF
 
-      - name: Clear & warmup cache
+      - name: Install dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction
+
+      - name: Cache clear & warmup
         run: |
-          cd /var/www/nexus-bet
           php bin/console cache:clear --env=prod --no-debug
           php bin/console cache:warmup --env=prod --no-debug
 
-      - name: Run migrations
-        run: |
-          cd /var/www/nexus-bet
-          php bin/console doctrine:migrations:migrate --no-interaction --env=prod
+      - name: Migrations
+        run: php bin/console doctrine:migrations:migrate --no-interaction --env=prod
 
-      - name: Restart app service
-        run: sudo systemctl restart nexus-bet
+      - name: Install & restart service
+        run: |
+          sudo cp deploy/nexus-bet.service /etc/systemd/system/nexus-bet.service
+          sudo systemctl daemon-reload
+          sudo systemctl enable nexus-bet
+          sudo systemctl restart nexus-bet
 
       - name: Health check
         run: |
           sleep 2
-          curl -sf http://127.0.0.1:3005 > /dev/null && echo "OK" || echo "WARN: health check failed"
+          curl -sf http://127.0.0.1:3005 > /dev/null && echo "✓ App up" || echo "⚠ Health check failed"
