@@ -4,6 +4,12 @@ set -e
 echo "==> Uploads dir"
 mkdir -p public/uploads/logos
 
+echo "==> Tailwind build"
+php bin/console tailwind:build --minify --env=prod --no-debug
+
+echo "==> Asset map compile"
+php bin/console asset-map:compile --env=prod --no-debug
+
 echo "==> Cache warmup"
 php bin/console cache:warmup --env=prod --no-debug
 
