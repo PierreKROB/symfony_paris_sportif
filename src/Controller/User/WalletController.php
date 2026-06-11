@@ -4,6 +4,7 @@ namespace App\Controller\User;
 
 use App\Form\DepositType;
 use App\Repository\TransactionRepository;
+use App\Service\ResponsibleGamingService;
 use App\Service\WalletService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,14 +23,23 @@ class WalletController extends AbstractController
     }
 
     #[Route('/deposit', name: 'user_wallet_deposit', methods: ['GET', 'POST'])]
-    public function deposit(Request $request, WalletService $wallet): Response
+    public function deposit(Request $request, WalletService $wallet, ResponsibleGamingService $rg): Response
     {
         $form = $this->createForm(DepositType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $amount = $form->get('amount')->getData();
-            $wallet->deposit($this->getUser(), (float) $amount);
+            $amount = (float) $form->get('amount')->getData();
+            $errors = $rg->canDeposit($this->getUser(), $amount);
+
+            if ($errors) {
+                foreach ($errors as $error) {
+                    $this->addFlash('error', $error);
+                }
+                return $this->render('user/wallet/deposit.html.twig', ['form' => $form]);
+            }
+
+            $wallet->deposit($this->getUser(), $amount);
             $this->addFlash('success', $amount . ' € ajoutés à votre portefeuille.');
             return $this->redirectToRoute('user_wallet_index');
         }

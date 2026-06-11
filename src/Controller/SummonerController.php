@@ -32,9 +32,13 @@ class SummonerController extends AbstractController
         $error    = null;
 
         if ($name !== '') {
-            $summoner = $this->riot->getSummonerByName($name);
+            $summoner = $this->riot->resolveSummoner($name);
             if (!$summoner) {
-                $error = "Summoner « {$name} » introuvable sur EUW. Vérifie l'orthographe.";
+                if (str_contains($name, '#')) {
+                    $error = "Joueur « {$name} » introuvable. Le compte Riot existe peut-être mais sans summoner LoL sur EUW — il faut avoir joué au moins une partie.";
+                } else {
+                    $error = "Joueur « {$name} » introuvable sur EUW. Utilise le format Pseudo#TAG (ex: Caps#EUW).";
+                }
             }
         }
 
@@ -49,13 +53,13 @@ class SummonerController extends AbstractController
     public function profile(string $encodedName): Response
     {
         $name     = urldecode($encodedName);
-        $summoner = $this->riot->getSummonerByName($name);
+        $summoner = $this->riot->resolveSummoner($name);
 
-        if (!$summoner) {
+        if (!$summoner || empty($summoner['puuid'])) {
             throw $this->createNotFoundException("Summoner introuvable : $name");
         }
 
-        $ranked   = $this->riot->getRankedStats($summoner['id']);
+        $ranked   = $this->riot->getRankedStats($summoner['puuid']);
         $matchIds = $this->riot->getMatchIds($summoner['puuid'], 5);
         $matches  = array_filter(array_map(fn($id) => $this->riot->getMatch($id), $matchIds));
         $version  = $this->dataDragon->getLatestVersion();
@@ -107,7 +111,7 @@ class SummonerController extends AbstractController
     public function createBet(string $encodedName): Response
     {
         $name     = urldecode($encodedName);
-        $summoner = $this->riot->getSummonerByName($name);
+        $summoner = $this->riot->resolveSummoner($name);
 
         if (!$summoner) {
             throw $this->createNotFoundException();
@@ -123,7 +127,7 @@ class SummonerController extends AbstractController
             return $this->redirectToRoute('summoner_profile', ['encodedName' => $encodedName]);
         }
 
-        $ranked    = $this->riot->getRankedStats($summoner['id']);
+        $ranked    = $this->riot->getRankedStats($summoner['puuid']);
         $soloQueue = null;
         foreach ($ranked as $queue) {
             if ($queue['queueType'] === 'RANKED_SOLO_5x5') {

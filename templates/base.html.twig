@@ -46,6 +46,11 @@
                         <i data-lucide="wallet" class="w-4 h-4"></i> Portefeuille
                     </a>
                 </li>
+                <li>
+                    <a href="{{ path('user_rg_index') }}" class="flex items-center gap-1.5">
+                        <i data-lucide="shield-alert" class="w-4 h-4"></i> Jeu responsable
+                    </a>
+                </li>
             {% endif %}
             {% if is_granted('ROLE_MANAGER') %}
                 <li>

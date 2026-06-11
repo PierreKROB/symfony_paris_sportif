@@ -5,12 +5,14 @@ namespace App\Service;
 use App\Entity\Bet;
 use App\Entity\User;
 use App\Repository\BetRepository;
+use App\Repository\TransactionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ResponsibleGamingService
 {
     public function __construct(
-        private BetRepository $betRepository,
+        private BetRepository         $betRepository,
+        private TransactionRepository $transactionRepository,
         private EntityManagerInterface $em,
     ) {}
 
@@ -41,6 +43,49 @@ class ResponsibleGamingService
         }
 
         return $errors;
+    }
+
+    public function canDeposit(User $user, float $amount): array
+    {
+        $errors = [];
+
+        if ($user->isSuspended()) {
+            $errors[] = 'Votre compte est suspendu.';
+        }
+
+        if ($user->isCurrentlySelfExcluded()) {
+            $errors[] = 'Vous êtes en auto-exclusion jusqu\'au ' . $user->getSelfExcludedUntil()->format('d/m/Y') . '.';
+        }
+
+        if ($user->getDailyDepositLimit() !== null) {
+            $dailyTotal = $this->transactionRepository->getTotalDepositForUserSince(
+                $user, new \DateTime('today midnight')
+            );
+            if ($dailyTotal + $amount > (float) $user->getDailyDepositLimit()) {
+                $errors[] = 'Plafond de dépôt quotidien atteint (' . $user->getDailyDepositLimit() . ' €).';
+            }
+        }
+
+        if ($user->getWeeklyDepositLimit() !== null) {
+            $weeklyTotal = $this->transactionRepository->getTotalDepositForUserSince(
+                $user, new \DateTime('monday this week midnight')
+            );
+            if ($weeklyTotal + $amount > (float) $user->getWeeklyDepositLimit()) {
+                $errors[] = 'Plafond de dépôt hebdomadaire atteint (' . $user->getWeeklyDepositLimit() . ' €).';
+            }
+        }
+
+        return $errors;
+    }
+
+    public function updateDepositLimit(User $user, string $type, ?float $newLimit): void
+    {
+        if ($type === 'daily') {
+            $user->setDailyDepositLimit($newLimit !== null ? (string) $newLimit : null);
+        } else {
+            $user->setWeeklyDepositLimit($newLimit !== null ? (string) $newLimit : null);
+        }
+        $this->em->flush();
     }
 
     public function selfExclude(User $user, int $days): void
