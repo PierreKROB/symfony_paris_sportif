@@ -17,10 +17,14 @@ use Symfony\Component\Routing\Attribute\Route;
 class SportEventController extends AbstractController
 {
     #[Route('', name: 'manager_event_index')]
-    public function index(SportEventRepository $repo): Response
+    public function index(Request $request, SportEventRepository $repo): Response
     {
+        $page       = max(1, (int) $request->query->get('page', 1));
+        $pagination = $repo->findPaginated($page, 15);
+
         return $this->render('manager/event/index.html.twig', [
-            'events' => $repo->findBy([], ['createdAt' => 'DESC']),
+            'events'     => $pagination['items'],
+            'pagination' => $pagination,
         ]);
     }
 

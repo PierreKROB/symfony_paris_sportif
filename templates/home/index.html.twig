@@ -76,6 +76,8 @@
     </div>
 {% endif %}
 
+{% include 'partials/pagination.html.twig' with {pagination: pagination} %}
+
 <div class="alert alert-warning mt-10 text-sm">
     <i data-lucide="shield-alert" class="w-5 h-5 shrink-0"></i>
     <span><strong>Jeu responsable :</strong> Les paris sont fictifs. Jouer peut créer une dépendance. Réservé aux +18 ans.</span>

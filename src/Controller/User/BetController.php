@@ -15,10 +15,14 @@ use Symfony\Component\Routing\Attribute\Route;
 class BetController extends AbstractController
 {
     #[Route('', name: 'user_bet_index')]
-    public function index(BetRepository $repo): Response
+    public function index(Request $request, BetRepository $repo): Response
     {
+        $page       = max(1, (int) $request->query->get('page', 1));
+        $pagination = $repo->findPaginatedForUser($this->getUser(), $page);
+
         return $this->render('user/bet/index.html.twig', [
-            'bets' => $repo->findBy(['user' => $this->getUser()], ['createdAt' => 'DESC']),
+            'bets'       => $pagination['items'],
+            'pagination' => $pagination,
         ]);
     }
 

@@ -16,28 +16,40 @@ class SportEventRepository extends ServiceEntityRepository
         parent::__construct($registry, SportEvent::class);
     }
 
-//    /**
-//     * @return SportEvent[] Returns an array of SportEvent objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('s')
-//            ->andWhere('s.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('s.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * Retourne une page d'événements avec les infos nécessaires à la pagination.
+     *
+     * @param array<string,string> $criteria  Ex: ['status' => 'PUBLIE']
+     * @param array<string,string> $orderBy   Ex: ['startsAt' => 'ASC']
+     */
+    public function findPaginated(int $page, int $perPage = 10, array $criteria = [], array $orderBy = ['createdAt' => 'DESC']): array
+    {
+        $qb = $this->createQueryBuilder('e');
 
-//    public function findOneBySomeField($value): ?SportEvent
-//    {
-//        return $this->createQueryBuilder('s')
-//            ->andWhere('s.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+        foreach ($criteria as $field => $value) {
+            $qb->andWhere("e.{$field} = :{$field}")->setParameter($field, $value);
+        }
+        foreach ($orderBy as $field => $direction) {
+            $qb->addOrderBy("e.{$field}", $direction);
+        }
+
+        $total = (int) (clone $qb)
+            ->select('COUNT(e.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $items = $qb
+            ->setFirstResult(($page - 1) * $perPage)
+            ->setMaxResults($perPage)
+            ->getQuery()
+            ->getResult();
+
+        return [
+            'items'       => $items,
+            'total'       => $total,
+            'currentPage' => $page,
+            'totalPages'  => max(1, (int) ceil($total / $perPage)),
+            'perPage'     => $perPage,
+        ];
+    }
 }

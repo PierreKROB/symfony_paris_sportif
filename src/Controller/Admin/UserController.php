@@ -14,10 +14,14 @@ use Symfony\Component\Routing\Attribute\Route;
 class UserController extends AbstractController
 {
     #[Route('', name: 'admin_user_index')]
-    public function index(UserRepository $repo): Response
+    public function index(Request $request, UserRepository $repo): Response
     {
+        $page       = max(1, (int) $request->query->get('page', 1));
+        $pagination = $repo->findPaginated($page);
+
         return $this->render('admin/user/index.html.twig', [
-            'users' => $repo->findAll(),
+            'users'      => $pagination['items'],
+            'pagination' => $pagination,
         ]);
     }
 
