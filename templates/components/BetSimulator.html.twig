@@ -1,0 +1,39 @@
+{#
+    Template du composant Live BetSimulator.
+    {{ attributes }} injecte les attributs data- nécessaires au JS du live component.
+    data-model="amount" lie l'input à la propriété LiveProp $amount côté PHP.
+#}
+<div {{ attributes }}>
+    <div class="bg-base-200 rounded-xl p-4 text-center space-y-3">
+
+        <div>
+            <p class="text-xs text-base-content/50">Cote actuelle</p>
+            <p class="text-3xl font-bold text-success">x{{ this.currentOdds }}</p>
+        </div>
+
+        <div class="divider my-0"></div>
+
+        <div class="form-control">
+            <label class="label-text text-xs text-base-content/50 mb-1 block">Montant à miser (€)</label>
+            <input
+                type="number"
+                data-model="amount"
+                min="1"
+                step="0.5"
+                placeholder="ex: 20"
+                value="{{ this.amount > 0 ? this.amount : '' }}"
+                class="input input-bordered w-full text-center"
+            />
+        </div>
+
+        <div>
+            <p class="text-xs text-base-content/50">Gain potentiel</p>
+            {% if this.amount > 0 %}
+                <p class="text-2xl font-bold text-primary">{{ this.potentialGain|number_format(2) }} €</p>
+            {% else %}
+                <p class="text-2xl font-bold text-base-content/30">—</p>
+            {% endif %}
+        </div>
+
+    </div>
+</div>

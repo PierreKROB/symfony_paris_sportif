@@ -10,16 +10,31 @@
 
 <div class="card bg-base-100 shadow-xl max-w-lg">
     <div class="card-body">
-        {{ form_start(form, {attr: {class: 'space-y-4'}}) }}
-            {% for field in form %}
+        {{ form_start(form, {attr: {class: 'space-y-4', enctype: 'multipart/form-data'}}) }}
+
+            {{ form_row(form.name,       {attr: {class: 'input input-bordered w-full mt-1'}}) }}
+            {{ form_row(form.sport,      {attr: {class: 'input input-bordered w-full mt-1'}}) }}
+            {{ form_row(form.tournament, {attr: {class: 'input input-bordered w-full mt-1'}}) }}
+            {{ form_row(form.teamA,      {attr: {class: 'input input-bordered w-full mt-1'}}) }}
+            {{ form_row(form.teamB,      {attr: {class: 'input input-bordered w-full mt-1'}}) }}
+            {{ form_row(form.startsAt,   {attr: {class: 'input input-bordered w-full mt-1'}}) }}
+
+            <div class="grid grid-cols-2 gap-4">
                 <div class="form-control">
-                    {{ form_label(field, null, {label_attr: {class: 'label-text font-medium'}}) }}
-                    {{ form_widget(field, {attr: {class: 'input input-bordered w-full mt-1'}}) }}
-                    {{ form_errors(field) }}
+                    {{ form_label(form.logoAFile, null, {label_attr: {class: 'label-text font-medium'}}) }}
+                    {{ form_widget(form.logoAFile, {attr: {class: 'file-input file-input-bordered w-full mt-1 file-input-sm'}}) }}
+                    {{ form_errors(form.logoAFile) }}
                 </div>
-            {% endfor %}
+                <div class="form-control">
+                    {{ form_label(form.logoBFile, null, {label_attr: {class: 'label-text font-medium'}}) }}
+                    {{ form_widget(form.logoBFile, {attr: {class: 'file-input file-input-bordered w-full mt-1 file-input-sm'}}) }}
+                    {{ form_errors(form.logoBFile) }}
+                </div>
+            </div>
+
             <div class="alert alert-info text-sm">
-                💡 Les issues (Victoire équipe A / B) seront créées automatiquement avec une cote de 1.50.
+                <i data-lucide="info" class="w-4 h-4"></i>
+                Les issues (Victoire équipe A / B) seront créées automatiquement avec une cote de 1.50.
             </div>
             <button type="submit" class="btn btn-primary w-full">Créer le match</button>
         {{ form_end(form) }}

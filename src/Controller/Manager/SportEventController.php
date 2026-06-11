@@ -9,29 +9,39 @@ use App\Repository\SportEventRepository;
 use App\Service\SportEventService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/manager/events')]
 class SportEventController extends AbstractController
 {
     #[Route('', name: 'manager_event_index')]
-    public function index(SportEventRepository $repo): Response
+    public function index(Request $request, SportEventRepository $repo): Response
     {
+        $page       = max(1, (int) $request->query->get('page', 1));
+        $pagination = $repo->findPaginated($page, 15);
+
         return $this->render('manager/event/index.html.twig', [
-            'events' => $repo->findBy([], ['createdAt' => 'DESC']),
+            'events'     => $pagination['items'],
+            'pagination' => $pagination,
         ]);
     }
 
     #[Route('/new', name: 'manager_event_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em): Response
+    public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
     {
         $event = new SportEvent();
         $form  = $this->createForm(SportEventType::class, $event);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Gestion des logos uploadés
+            $this->handleLogoUpload($form->get('logoAFile')->getData(), $event, 'A', $slugger);
+            $this->handleLogoUpload($form->get('logoBFile')->getData(), $event, 'B', $slugger);
+
             // Crée automatiquement les 2 issues (Victoire teamA / Victoire teamB)
             $outcomeA = (new Outcome())->setLabel('Victoire ' . $event->getTeamA())->setEvent($event);
             $outcomeB = (new Outcome())->setLabel('Victoire ' . $event->getTeamB())->setEvent($event);
@@ -45,6 +55,33 @@ class SportEventController extends AbstractController
         }
 
         return $this->render('manager/event/new.html.twig', ['form' => $form]);
+    }
+
+    /**
+     * Déplace le fichier uploadé dans public/uploads/logos/
+     * et enregistre l'URL dans l'entité.
+     */
+    private function handleLogoUpload(?UploadedFile $file, SportEvent $event, string $team, SluggerInterface $slugger): void
+    {
+        if (!$file) {
+            return;
+        }
+
+        // Nom unique pour éviter les collisions : slug-du-nom + identifiant aléatoire
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeName     = $slugger->slug($originalName);
+        $fileName     = $safeName . '-' . uniqid() . '.' . $file->guessExtension();
+
+        $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/logos';
+        $file->move($uploadDir, $fileName);
+
+        $url = '/uploads/logos/' . $fileName;
+
+        if ($team === 'A') {
+            $event->setTeamALogoUrl($url);
+        } else {
+            $event->setTeamBLogoUrl($url);
+        }
     }
 
     #[Route('/{id}/publish', name: 'manager_event_publish', methods: ['POST'])]

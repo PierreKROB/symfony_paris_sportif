@@ -3,10 +3,11 @@
 namespace App\Entity;
 
 use App\Repository\OutcomeRepository;
+use App\Service\OddsCalculatorService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use App\Service\OddsCalculatorService;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: OutcomeRepository::class)]
 class Outcome
@@ -17,9 +18,11 @@ class Outcome
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Le libellé de l\'issue est obligatoire.')]
     private ?string $label = null;
 
     #[ORM\Column]
+    #[Assert\GreaterThan(value: 0, message: 'La cote doit être positive.')]
     private ?float $odds = null;
 
     #[ORM\Column(nullable: true)]

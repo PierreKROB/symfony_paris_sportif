@@ -6,6 +6,7 @@ use App\Repository\SportEventRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SportEventRepository::class)]
 class SportEvent
@@ -26,21 +27,35 @@ class SportEvent
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le nom du match est obligatoire.')]
+    #[Assert\Length(max: 255)]
     private ?string $name = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Le sport est obligatoire.')]
+    #[Assert\Length(max: 100)]
+    private string $sport = 'League of Legends';
+
+    #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Le tournoi est obligatoire.')]
+    #[Assert\Length(max: 100)]
     private ?string $tournament = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: "L'équipe A est obligatoire.")]
+    #[Assert\Length(max: 100)]
     private ?string $teamA = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: "L'équipe B est obligatoire.")]
+    #[Assert\Length(max: 100)]
     private ?string $teamB = null;
 
     #[ORM\Column(length: 100)]
     private ?string $status = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'La date du match est obligatoire.')]
     private ?\DateTime $startsAt = null;
 
     #[ORM\Column]
@@ -72,9 +87,9 @@ class SportEvent
 
     public function __construct()
     {
-        $this->outcomes = new ArrayCollection();
+        $this->outcomes  = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
-        $this->status = self::STATUS_DRAFT;
+        $this->status    = self::STATUS_DRAFT;
     }
 
     public function getId(): ?int
@@ -91,6 +106,17 @@ class SportEvent
     {
         $this->name = $name;
 
+        return $this;
+    }
+
+    public function getSport(): string
+    {
+        return $this->sport;
+    }
+
+    public function setSport(string $sport): static
+    {
+        $this->sport = $sport;
         return $this;
     }
 

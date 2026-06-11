@@ -150,8 +150,8 @@ class SummonerController extends AbstractController
             ->setStartsAt(new \DateTime('+30 minutes'))
             ->setStatus(SportEvent::STATUS_PUBLISHED);
 
-        $oWin  = (new Outcome())->setLabel('Victoire')->setOdds(1.80)->setEvent($event);
-        $oLose = (new Outcome())->setLabel('Défaite')->setOdds(1.80)->setEvent($event);
+        $oWin  = (new Outcome())->setLabel('Victoire')->setOdds(1.50)->setEvent($event);
+        $oLose = (new Outcome())->setLabel('Défaite')->setOdds(1.50)->setEvent($event);
 
         $this->em->persist($event);
         $this->em->persist($oWin);

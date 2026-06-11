@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\BetRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BetRepository::class)]
 class Bet
@@ -19,6 +20,7 @@ class Bet
     private ?int $id = null;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    #[Assert\Positive(message: 'La mise doit être un montant positif.')]
     private ?string $amount = null;
 
     #[ORM\Column]

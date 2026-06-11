@@ -11,7 +11,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
 
 class RegistrationFormType extends AbstractType
 {
@@ -27,8 +29,15 @@ class RegistrationFormType extends AbstractType
                 'attr'  => ['placeholder' => 'votre@email.com'],
             ])
             ->add('birthDate', BirthdayType::class, [
-                'label'  => 'Date de naissance',
-                'widget' => 'single_text',
+                'label'       => 'Date de naissance',
+                'widget'      => 'single_text',
+                'constraints' => [
+                    new NotNull(message: 'La date de naissance est obligatoire.'),
+                    new LessThanOrEqual(
+                        value: '-18 years',
+                        message: 'Vous devez avoir au moins 18 ans pour vous inscrire.'
+                    ),
+                ],
             ])
             ->add('plainPassword', PasswordType::class, [
                 'label'    => 'Mot de passe',

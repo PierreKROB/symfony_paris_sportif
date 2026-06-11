@@ -1,0 +1,37 @@
+{#
+    Partial réutilisable pour la pagination.
+    Usage : {% include 'partials/pagination.html.twig' with {pagination: pagination} %}
+    Le lien ?page=X s'ajoute à l'URL courante (les autres paramètres GET sont conservés).
+#}
+{% if pagination.totalPages > 1 %}
+<div class="flex justify-center items-center gap-1 mt-8">
+
+    {% if pagination.currentPage > 1 %}
+        <a href="?page={{ pagination.currentPage - 1 }}" class="btn btn-sm btn-outline">
+            ←
+        </a>
+    {% else %}
+        <button class="btn btn-sm btn-outline btn-disabled" disabled>←</button>
+    {% endif %}
+
+    {% for p in 1..pagination.totalPages %}
+        <a href="?page={{ p }}"
+           class="btn btn-sm {{ p == pagination.currentPage ? 'btn-primary' : 'btn-outline' }}">
+            {{ p }}
+        </a>
+    {% endfor %}
+
+    {% if pagination.currentPage < pagination.totalPages %}
+        <a href="?page={{ pagination.currentPage + 1 }}" class="btn btn-sm btn-outline">
+            →
+        </a>
+    {% else %}
+        <button class="btn btn-sm btn-outline btn-disabled" disabled>→</button>
+    {% endif %}
+
+    <span class="text-xs text-base-content/40 ml-2">
+        {{ pagination.total }} résultat{{ pagination.total > 1 ? 's' : '' }}
+    </span>
+
+</div>
+{% endif %}
