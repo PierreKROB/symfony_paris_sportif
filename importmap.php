@@ -16,4 +16,10 @@ return [
         'path' => './assets/app.js',
         'entrypoint' => true,
     ],
+    '@symfony/ux-live-component' => [
+        'version' => '3.1.0',
+    ],
+    '@hotwired/stimulus' => [
+        'version' => '3.2.2',
+    ],
 ];

@@ -38,15 +38,14 @@
                 Solde : <strong class="ml-1">{{ app.user.balance|number_format(2) }} €</strong>
             </p>
 
+            {# Simulateur live : cote + calcul du gain en temps réel (serveur) #}
+            {{ component('BetSimulator', {outcomeId: outcome.id}) }}
+
             {{ form_start(form) }}
                 <div class="form-control my-3">
                     {{ form_label(form.amount, null, {label_attr: {class: 'label-text'}}) }}
-                    {{ form_widget(form.amount, {attr: {class: 'input input-bordered w-full mt-1', id: 'amount-input'}}) }}
+                    {{ form_widget(form.amount, {attr: {class: 'input input-bordered w-full mt-1'}}) }}
                     {{ form_errors(form.amount) }}
-                </div>
-                <div class="bg-base-200 rounded-lg p-3 text-center mb-4">
-                    <p class="text-xs text-base-content/50">Gain potentiel</p>
-                    <p class="text-2xl font-bold text-success" id="gain-preview">—</p>
                 </div>
                 <button type="submit" class="btn btn-primary w-full gap-2">
                     <i data-lucide="check-circle" class="w-4 h-4"></i>
@@ -67,14 +66,4 @@
 </div>
 {% endblock %}
 
-{% block javascripts %}
-<script>
-    const input = document.getElementById('amount-input');
-    const preview = document.getElementById('gain-preview');
-    const odds = {{ outcome.odds }};
-    input?.addEventListener('input', () => {
-        const v = parseFloat(input.value);
-        preview.textContent = isNaN(v) || v <= 0 ? '—' : (v * odds).toFixed(2) + ' €';
-    });
-</script>
-{% endblock %}
+{% block javascripts %}{% endblock %}
