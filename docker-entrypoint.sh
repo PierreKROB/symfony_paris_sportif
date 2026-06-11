@@ -7,6 +7,9 @@ mkdir -p public/uploads/logos
 echo "==> Tailwind build"
 php bin/console tailwind:build --minify --env=prod --no-debug
 
+echo "==> Importmap install"
+php bin/console importmap:install --env=prod --no-debug
+
 echo "==> Asset map compile"
 php bin/console asset-map:compile --env=prod --no-debug
 
