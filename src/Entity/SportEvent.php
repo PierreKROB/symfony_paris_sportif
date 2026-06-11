@@ -10,6 +10,12 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: SportEventRepository::class)]
 class SportEvent
 {
+    const STATUS_DRAFT     = 'BROUILLON';
+    const STATUS_PUBLISHED = 'PUBLIE';
+    const STATUS_CLOSED    = 'FERME';
+    const STATUS_FINISHED  = 'TERMINE';
+    const STATUS_CANCELLED = 'ANNULE';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -45,6 +51,8 @@ class SportEvent
     public function __construct()
     {
         $this->outcomes = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->status = self::STATUS_DRAFT;
     }
 
     public function getId(): ?int

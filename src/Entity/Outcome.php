@@ -3,7 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\OutcomeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Service\OddsCalculatorService;
 
 #[ORM\Entity(repositoryClass: OutcomeRepository::class)]
 class Outcome
@@ -25,6 +28,15 @@ class Outcome
     #[ORM\ManyToOne(inversedBy: 'outcomes')]
     #[ORM\JoinColumn(nullable: false)]
     private ?SportEvent $event = null;
+
+    #[ORM\OneToMany(targetEntity: Bet::class, mappedBy: 'outcome')]
+    private Collection $bets;
+
+    public function __construct()
+    {
+        $this->bets = new ArrayCollection();
+        $this->odds = OddsCalculatorService::DEFAULT_ODDS ?? 1.50;
+    }
 
     public function getId(): ?int
     {
@@ -77,5 +89,10 @@ class Outcome
         $this->event = $event;
 
         return $this;
+    }
+
+    public function getBets(): Collection
+    {
+        return $this->bets;
     }
 }
