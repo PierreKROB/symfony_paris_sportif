@@ -75,6 +75,7 @@ jobs:
           DATABASE_URL: mysql://root:${{ secrets.MYSQL_ROOT_PASSWORD }}@db:3306/nexus_bet?serverVersion=8.0&charset=utf8mb4
           RIOT_API_KEY: ${{ secrets.RIOT_API_KEY }}
           LOL_ESPORTS_API_KEY: ${{ secrets.LOL_ESPORTS_API_KEY }}
+          DEFAULT_URI: ${{ secrets.DEFAULT_URI }}
         run: |
           mkdir -p "$HOME/nexus-bet"
           cp docker-compose.prod.yml "$HOME/nexus-bet/docker-compose.prod.yml"
@@ -86,6 +87,7 @@ jobs:
           export DATABASE_URL="$DATABASE_URL"
           export RIOT_API_KEY="$RIOT_API_KEY"
           export LOL_ESPORTS_API_KEY="$LOL_ESPORTS_API_KEY"
+          export DEFAULT_URI="$DEFAULT_URI"
 
           docker compose -f docker-compose.prod.yml pull
           docker compose -f docker-compose.prod.yml up -d --force-recreate
