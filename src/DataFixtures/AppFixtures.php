@@ -48,6 +48,7 @@ class AppFixtures extends Fixture
         $eventsData = [
             [
                 'name'       => 'T1 vs Gen.G — LCK Spring Finals',
+                'sport'      => 'League of Legends',
                 'tournament' => 'LCK Spring 2026',
                 'teamA'      => 'T1',
                 'teamB'      => 'Gen.G',
@@ -58,6 +59,7 @@ class AppFixtures extends Fixture
             ],
             [
                 'name'       => 'G2 Esports vs Fnatic — LEC Playoffs',
+                'sport'      => 'League of Legends',
                 'tournament' => 'LEC Spring 2026',
                 'teamA'      => 'G2 Esports',
                 'teamB'      => 'Fnatic',
@@ -68,6 +70,7 @@ class AppFixtures extends Fixture
             ],
             [
                 'name'       => 'BLG vs EDG — LPL Summer',
+                'sport'      => 'League of Legends',
                 'tournament' => 'LPL Summer 2026',
                 'teamA'      => 'BLG',
                 'teamB'      => 'EDG',
@@ -78,6 +81,7 @@ class AppFixtures extends Fixture
             ],
             [
                 'name'       => 'Cloud9 vs Team Liquid — LCS',
+                'sport'      => 'League of Legends',
                 'tournament' => 'LCS Summer 2026',
                 'teamA'      => 'Cloud9',
                 'teamB'      => 'Team Liquid',
@@ -89,6 +93,7 @@ class AppFixtures extends Fixture
             ],
             [
                 'name'       => 'KT Rolster vs DRX — LCK',
+                'sport'      => 'League of Legends',
                 'tournament' => 'LCK Summer 2026',
                 'teamA'      => 'KT Rolster',
                 'teamB'      => 'DRX',
@@ -99,11 +104,23 @@ class AppFixtures extends Fixture
             ],
             [
                 'name'       => 'Vitality vs MAD Lions — LEC',
+                'sport'      => 'League of Legends',
                 'tournament' => 'LEC Spring 2026',
                 'teamA'      => 'Vitality',
                 'teamB'      => 'MAD Lions',
                 'startsAt'   => '+7 days',
                 'status'     => SportEvent::STATUS_DRAFT,
+                'oddsA'      => 1.50,
+                'oddsB'      => 1.50,
+            ],
+            [
+                'name'       => 'NRG vs 100 Thieves — LCS (annulé)',
+                'sport'      => 'League of Legends',
+                'tournament' => 'LCS Summer 2026',
+                'teamA'      => 'NRG',
+                'teamB'      => '100 Thieves',
+                'startsAt'   => '+5 days',
+                'status'     => SportEvent::STATUS_CANCELLED,
                 'oddsA'      => 1.50,
                 'oddsB'      => 1.50,
             ],
@@ -114,6 +131,7 @@ class AppFixtures extends Fixture
         foreach ($eventsData as $data) {
             $event = (new SportEvent())
                 ->setName($data['name'])
+                ->setSport($data['sport'])
                 ->setTournament($data['tournament'])
                 ->setTeamA($data['teamA'])
                 ->setTeamB($data['teamB'])
