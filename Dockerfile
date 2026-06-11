@@ -17,7 +17,8 @@ COPY . .
 
 RUN composer dump-autoload --optimize --no-dev \
     && mkdir -p var/cache var/log \
-    && chmod -R 777 var/
+    && chmod -R 777 var/ \
+    && printf "APP_ENV=prod\nAPP_DEBUG=0\n" > .env
 
 EXPOSE 3005
 
