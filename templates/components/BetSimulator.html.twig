@@ -23,6 +23,7 @@
                 placeholder="ex: 20"
                 value="{{ this.amount > 0 ? this.amount : '' }}"
                 class="input input-bordered w-full text-center"
+                oninput="var f=document.getElementById('bet_amount');if(f)f.value=this.value;"
             />
         </div>
 

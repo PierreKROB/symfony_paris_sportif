@@ -42,12 +42,12 @@
             {{ component('BetSimulator', {outcomeId: outcome.id}) }}
 
             {{ form_start(form) }}
-                <div class="form-control my-3">
-                    {{ form_label(form.amount, null, {label_attr: {class: 'label-text'}}) }}
-                    {{ form_widget(form.amount, {attr: {class: 'input input-bordered w-full mt-1'}}) }}
-                    {{ form_errors(form.amount) }}
+                {# Input caché — sa valeur est remplie par l'oninput du BetSimulator #}
+                <div class="hidden">
+                    {{ form_widget(form.amount, {attr: {id: 'bet_amount'}}) }}
                 </div>
-                <button type="submit" class="btn btn-primary w-full gap-2">
+                {{ form_errors(form.amount) }}
+                <button type="submit" class="btn btn-primary w-full gap-2 mt-3">
                     <i data-lucide="check-circle" class="w-4 h-4"></i>
                     Confirmer le pari
                 </button>
