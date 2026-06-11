@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+{% block title %}Rechercher un joueur{% endblock %}
+
+{% block body %}
+<div class="max-w-xl mx-auto">
+    <div class="flex items-center gap-3 mb-6">
+        <i data-lucide="user-search" class="w-7 h-7 text-primary"></i>
+        <h1 class="text-2xl font-bold">Parier sur un joueur</h1>
+    </div>
+
+    <form method="get" action="{{ path('summoner_search') }}" class="flex gap-2 mb-8">
+        <label class="input input-bordered flex items-center gap-2 flex-1">
+            <i data-lucide="search" class="w-4 h-4 opacity-50"></i>
+            <input type="text" name="name" value="{{ name }}"
+                   placeholder="Pseudo EUW (ex: Faker, Caps…)"
+                   class="grow" autofocus />
+        </label>
+        <button class="btn btn-primary gap-1">
+            <i data-lucide="search" class="w-4 h-4"></i> Chercher
+        </button>
+    </form>
+
+    {% if error %}
+        <div class="alert alert-error">
+            <i data-lucide="circle-x" class="w-5 h-5"></i>
+            <span>{{ error }}</span>
+        </div>
+    {% elseif summoner %}
+        {# Redirect directly to profile #}
+        <script>window.location = "{{ path('summoner_profile', {encodedName: name|url_encode}) }}";</script>
+        <div class="flex justify-center py-12">
+            <span class="loading loading-spinner loading-lg text-primary"></span>
+        </div>
+    {% elseif name == '' %}
+        <div class="text-center py-12 text-base-content/30">
+            <i data-lucide="user-round" class="w-16 h-16 mx-auto mb-4 opacity-20"></i>
+            <p class="text-lg font-medium">Recherche un joueur EUW</p>
+            <p class="text-sm mt-1">Tu pourras créer un pari sur sa prochaine partie ranked</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

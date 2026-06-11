@@ -1,0 +1,137 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ summoner.name }} — Profil{% endblock %}
+
+{% block body %}
+
+{# Header summoner #}
+<div class="flex items-center gap-5 mb-8">
+    <div class="relative">
+        <img src="{{ iconUrl }}" alt="icon"
+             class="w-20 h-20 rounded-xl border-2 border-primary shadow-lg" />
+        <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 badge badge-primary badge-sm font-bold">
+            {{ summoner.summonerLevel }}
+        </span>
+    </div>
+    <div>
+        <h1 class="text-3xl font-bold">{{ summoner.name }}</h1>
+        <p class="text-base-content/50 text-sm mt-1">EUW · Summoner</p>
+    </div>
+    <a href="{{ path('summoner_search') }}" class="btn btn-ghost btn-sm gap-1 ml-auto">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour
+    </a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    {# Ranked stats #}
+    <div class="space-y-3">
+        <h2 class="text-sm uppercase tracking-wide opacity-50 font-semibold flex items-center gap-1">
+            <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Classement
+        </h2>
+        {% set queues = {'RANKED_SOLO_5x5': 'Solo/Duo', 'RANKED_FLEX_SR': 'Flex'} %}
+        {% set tierColors = {
+            'IRON': 'badge-ghost', 'BRONZE': 'badge-warning', 'SILVER': 'badge-secondary',
+            'GOLD': 'badge-warning', 'PLATINUM': 'badge-info', 'EMERALD': 'badge-success',
+            'DIAMOND': 'badge-info', 'MASTER': 'badge-primary', 'GRANDMASTER': 'badge-primary',
+            'CHALLENGER': 'badge-primary'
+        } %}
+        {% if ranked is empty %}
+            <div class="card bg-base-200 p-4 text-center text-base-content/40 text-sm">
+                <i data-lucide="minus-circle" class="w-6 h-6 mx-auto mb-1 opacity-30"></i>
+                Non classé
+            </div>
+        {% endif %}
+        {% for queue in ranked %}
+            {% set qLabel = queues[queue.queueType] ?? queue.queueType %}
+            {% set color  = tierColors[queue.tier] ?? 'badge-ghost' %}
+            {% set wr = queue.wins + queue.losses > 0 ? (queue.wins / (queue.wins + queue.losses) * 100)|round : 0 %}
+            <div class="card bg-base-200">
+                <div class="card-body p-4 gap-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-semibold opacity-60">{{ qLabel }}</span>
+                        <span class="badge badge-sm {{ color }}">{{ queue.tier }} {{ queue.rank }}</span>
+                    </div>
+                    <p class="text-2xl font-bold">{{ queue.leaguePoints }} <span class="text-sm font-normal opacity-50">LP</span></p>
+                    <div class="flex gap-3 text-sm">
+                        <span class="text-success">{{ queue.wins }}V</span>
+                        <span class="text-error">{{ queue.losses }}D</span>
+                        <span class="ml-auto font-semibold {{ wr >= 50 ? 'text-success' : 'text-error' }}">{{ wr }}%</span>
+                    </div>
+                    <progress class="progress {{ wr >= 50 ? 'progress-success' : 'progress-error' }} h-1.5"
+                              value="{{ wr }}" max="100"></progress>
+                </div>
+            </div>
+        {% endfor %}
+
+        {# Créer un pari #}
+        <div class="divider text-xs opacity-40">PARI</div>
+        {% if existingBet %}
+            <div class="alert alert-info text-sm">
+                <i data-lucide="info" class="w-4 h-4"></i>
+                <span>Un pari actif existe déjà pour ce joueur.</span>
+            </div>
+            {% if is_granted('ROLE_USER') %}
+            <a href="{{ path('user_bet_place', {id: existingBet.outcomes.first.id}) }}"
+               class="btn btn-primary w-full gap-2">
+                <i data-lucide="target" class="w-4 h-4"></i> Parier maintenant
+            </a>
+            {% endif %}
+        {% else %}
+            {% if is_granted('ROLE_USER') %}
+            <form method="post" action="{{ path('summoner_create_bet', {encodedName: encodedName}) }}">
+                <button class="btn btn-primary w-full gap-2">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    Créer un pari sur ce joueur
+                </button>
+            </form>
+            <p class="text-xs text-base-content/40 text-center mt-1">
+                Prédit si {{ summoner.name }} va gagner sa prochaine ranked
+            </p>
+            {% else %}
+            <a href="{{ path('app_login') }}" class="btn btn-outline w-full gap-2">
+                <i data-lucide="log-in" class="w-4 h-4"></i> Connecte-toi pour parier
+            </a>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    {# Historique des matchs #}
+    <div class="lg:col-span-2">
+        <h2 class="text-sm uppercase tracking-wide opacity-50 font-semibold flex items-center gap-1 mb-3">
+            <i data-lucide="history" class="w-4 h-4"></i> 5 dernières parties
+        </h2>
+
+        {% if matchSummaries is empty %}
+            <div class="card bg-base-200 p-8 text-center text-base-content/30">
+                <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 opacity-20"></i>
+                <p>Aucune partie récente trouvée.</p>
+            </div>
+        {% else %}
+        <div class="space-y-2">
+            {% for m in matchSummaries %}
+            <div class="card bg-base-200 hover:bg-base-300 transition-colors">
+                <div class="card-body p-4 flex-row items-center gap-4">
+                    <div class="relative flex-shrink-0">
+                        <img src="{{ m.iconUrl }}" alt="{{ m.champion }}"
+                             class="w-12 h-12 rounded-lg border-2 {{ m.win ? 'border-success' : 'border-error' }}" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-sm">{{ m.champion }}</p>
+                        <p class="text-xs text-base-content/50 font-mono">{{ m.kills }}/{{ m.deaths }}/{{ m.assists }} · {{ m.duration }}</p>
+                    </div>
+                    <div class="text-right flex-shrink-0">
+                        {% if m.win %}
+                            <span class="badge badge-success font-bold">Victoire</span>
+                        {% else %}
+                            <span class="badge badge-error font-bold">Défaite</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

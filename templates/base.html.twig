@@ -30,6 +30,11 @@
                     <i data-lucide="book-open" class="w-4 h-4"></i> Codex
                 </a>
             </li>
+            <li>
+                <a href="{{ path('summoner_search') }}" class="flex items-center gap-1.5">
+                    <i data-lucide="user-search" class="w-4 h-4"></i> Joueurs
+                </a>
+            </li>
             {% if is_granted('ROLE_USER') %}
                 <li>
                     <a href="{{ path('user_bet_index') }}" class="flex items-center gap-1.5">
