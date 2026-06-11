@@ -1,0 +1,136 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Statistiques globales{% endblock %}
+
+{% block body %}
+<div class="flex items-center gap-3 mb-8">
+    <i data-lucide="bar-chart-2" class="w-7 h-7 text-primary"></i>
+    <h1 class="text-2xl font-bold">Statistiques globales</h1>
+</div>
+
+{# ── Chiffres clés ─────────────────────────────────────────── #}
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="stat bg-base-100 rounded-box shadow">
+        <div class="stat-figure text-primary"><i data-lucide="users" class="w-8 h-8"></i></div>
+        <div class="stat-title">Utilisateurs</div>
+        <div class="stat-value text-primary">{{ totalUsers }}</div>
+    </div>
+    <div class="stat bg-base-100 rounded-box shadow">
+        <div class="stat-figure text-secondary"><i data-lucide="trophy" class="w-8 h-8"></i></div>
+        <div class="stat-title">Événements</div>
+        <div class="stat-value text-secondary">{{ totalEvents }}</div>
+    </div>
+    <div class="stat bg-base-100 rounded-box shadow">
+        <div class="stat-figure text-accent"><i data-lucide="layers" class="w-8 h-8"></i></div>
+        <div class="stat-title">Paris placés</div>
+        <div class="stat-value text-accent">{{ totalBets }}</div>
+    </div>
+    <div class="stat bg-base-100 rounded-box shadow">
+        <div class="stat-figure text-success"><i data-lucide="coins" class="w-8 h-8"></i></div>
+        <div class="stat-title">Total misé</div>
+        <div class="stat-value text-success">{{ totalWagered|number_format(2) }} €</div>
+    </div>
+</div>
+
+{# ── Répartition ───────────────────────────────────────────── #}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+    <div class="card bg-base-100 shadow">
+        <div class="card-body">
+            <h2 class="card-title text-base gap-2">
+                <i data-lucide="calendar-check" class="w-5 h-5"></i>
+                Événements par statut
+            </h2>
+            <div class="space-y-2 mt-2">
+                {% set badgeClass = {
+                    'BROUILLON': 'badge-ghost',
+                    'PUBLIE':    'badge-success',
+                    'FERME':     'badge-warning',
+                    'TERMINE':   'badge-info',
+                    'ANNULE':    'badge-error'
+                } %}
+                {% for status, count in eventsByStatus %}
+                <div class="flex justify-between items-center">
+                    <span class="badge {{ badgeClass[status] ?? 'badge-ghost' }} badge-sm">{{ status }}</span>
+                    <span class="font-mono font-bold">{{ count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="card bg-base-100 shadow">
+        <div class="card-body">
+            <h2 class="card-title text-base gap-2">
+                <i data-lucide="layers" class="w-5 h-5"></i>
+                Paris par statut
+            </h2>
+            <div class="space-y-2 mt-2">
+                {% set betBadge = {
+                    'EN_ATTENTE': 'badge-warning',
+                    'GAGNE':      'badge-success',
+                    'PERDU':      'badge-error',
+                    'ANNULE':     'badge-ghost'
+                } %}
+                {% for status, count in betsByStatus %}
+                <div class="flex justify-between items-center">
+                    <span class="badge {{ betBadge[status] ?? 'badge-ghost' }} badge-sm">{{ status }}</span>
+                    <span class="font-mono font-bold">{{ count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{# ── Liste de tous les paris ───────────────────────────────── #}
+<div class="flex items-center gap-2 mb-4">
+    <i data-lucide="list" class="w-5 h-5 text-base-content/50"></i>
+    <h2 class="text-lg font-bold">Tous les paris</h2>
+    <span class="text-sm text-base-content/40">({{ pagination.total }} au total)</span>
+</div>
+
+<div class="overflow-x-auto">
+    <table class="table table-zebra w-full">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Utilisateur</th>
+                <th>Match</th>
+                <th>Issue</th>
+                <th>Mise</th>
+                <th>Cote</th>
+                <th>Gain pot.</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for bet in bets %}
+            {% set statusClass = {
+                'EN_ATTENTE': 'badge-warning',
+                'GAGNE':      'badge-success',
+                'PERDU':      'badge-error',
+                'ANNULE':     'badge-ghost'
+            }[bet.status] ?? 'badge-ghost' %}
+            <tr>
+                <td class="text-xs text-base-content/60">{{ bet.createdAt|date('d/m/Y H:i') }}</td>
+                <td class="font-semibold text-sm">{{ bet.user.username }}</td>
+                <td class="text-sm">{{ bet.outcome.event.teamA }} vs {{ bet.outcome.event.teamB }}</td>
+                <td class="text-sm">{{ bet.outcome.label }}</td>
+                <td class="font-mono text-sm">{{ bet.amount|number_format(2) }} €</td>
+                <td class="text-primary font-bold text-sm">x{{ bet.lockedOdds }}</td>
+                <td class="font-mono text-sm">{{ bet.potentialGain|number_format(2) }} €</td>
+                <td><span class="badge badge-sm {{ statusClass }}">{{ bet.status }}</span></td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8" class="text-center text-base-content/40 py-8">Aucun pari enregistré.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% include 'partials/pagination.html.twig' with {pagination: pagination} %}
+{% endblock %}
