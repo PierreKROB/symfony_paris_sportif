@@ -19,5 +19,12 @@ services:
     App\:
         resource: '../src/'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    App\Service\RiotApiService:
+        arguments:
+            $apiKey:   '%env(RIOT_API_KEY)%'
+            $platform: '%env(RIOT_PLATFORM)%'
+            $region:   '%env(RIOT_REGION)%'
+
+    App\Service\LoLEsportsService:
+        arguments:
+            $apiKey: '%env(LOL_ESPORTS_API_KEY)%'

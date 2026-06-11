@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Codex — Champions LoL{% endblock %}
+
+{% block body %}
+<div class="flex items-center gap-3 mb-2">
+    <i data-lucide="book-open" class="w-7 h-7 text-primary"></i>
+    <h1 class="text-2xl font-bold">Codex des Champions</h1>
+    <span class="badge badge-outline badge-sm ml-auto opacity-50">v{{ version }}</span>
+</div>
+<p class="text-base-content/50 text-sm mb-6">{{ champions|length }} champions disponibles — cliquez pour voir les détails</p>
+
+{# Search bar #}
+<form method="get" action="{{ path('codex_index') }}" class="mb-6">
+    <label class="input input-bordered flex items-center gap-2 max-w-sm">
+        <i data-lucide="search" class="w-4 h-4 opacity-50"></i>
+        <input type="text" name="q" value="{{ search }}" placeholder="Rechercher un champion…" class="grow" />
+    </label>
+</form>
+
+{% if champions is empty %}
+<div class="text-center py-16 text-base-content/30">
+    <i data-lucide="search-x" class="w-12 h-12 mx-auto mb-3 opacity-30"></i>
+    <p class="text-lg">Aucun champion trouvé pour « {{ search }} »</p>
+</div>
+{% else %}
+<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-3">
+    {% for champion in champions %}
+    <a href="{{ path('codex_show', {championId: champion.id}) }}"
+       class="group flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-base-300 transition-colors">
+        <div class="relative">
+            <img src="https://ddragon.leagueoflegends.com/cdn/{{ version }}/img/champion/{{ champion.id }}.png"
+                 alt="{{ champion.name }}"
+                 class="w-16 h-16 rounded-lg border border-base-300 group-hover:border-primary transition-colors"
+                 loading="lazy" />
+        </div>
+        <span class="text-xs text-center font-medium text-base-content/70 group-hover:text-primary transition-colors leading-tight">
+            {{ champion.name }}
+        </span>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ champion.name }} — Codex{% endblock %}
+
+{% block body %}
+{# Splash art header #}
+<div class="relative rounded-2xl overflow-hidden mb-8 h-64 md:h-80">
+    <img src="{{ splashUrl }}" alt="{{ champion.name }}"
+         class="w-full h-full object-cover object-top opacity-50" />
+    <div class="absolute inset-0 bg-gradient-to-t from-base-100 via-base-100/60 to-transparent"></div>
+    <div class="absolute bottom-0 left-0 p-6 flex items-end gap-4">
+        <img src="https://ddragon.leagueoflegends.com/cdn/{{ version }}/img/champion/{{ champion.id }}.png"
+             alt="{{ champion.name }}"
+             class="w-20 h-20 rounded-xl border-2 border-primary shadow-lg" />
+        <div>
+            <p class="text-xs uppercase tracking-widest text-primary font-bold mb-1">{{ champion.title }}</p>
+            <h1 class="text-3xl font-bold">{{ champion.name }}</h1>
+            <div class="flex gap-2 mt-2 flex-wrap">
+                {% for tag in champion.tags %}
+                <span class="badge badge-primary badge-outline badge-sm">{{ tag }}</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <a href="{{ path('codex_index') }}" class="absolute top-4 left-4 btn btn-sm btn-ghost gap-1">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Codex
+    </a>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+    {# Stats #}
+    <div class="card bg-base-200">
+        <div class="card-body">
+            <h2 class="card-title text-sm uppercase tracking-wide opacity-60 gap-1">
+                <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Statistiques de base
+            </h2>
+            {% set stats = champion.stats %}
+            <div class="grid grid-cols-2 gap-x-4 gap-y-2 mt-2 text-sm">
+                <div class="flex justify-between"><span class="opacity-60">HP</span><strong>{{ stats.hp }}</strong></div>
+                <div class="flex justify-between"><span class="opacity-60">Armure</span><strong>{{ stats.armor }}</strong></div>
+                <div class="flex justify-between"><span class="opacity-60">Mana</span><strong>{{ stats.mp }}</strong></div>
+                <div class="flex justify-between"><span class="opacity-60">Résist. mag.</span><strong>{{ stats.spellblock }}</strong></div>
+                <div class="flex justify-between"><span class="opacity-60">AD</span><strong>{{ stats.attackdamage }}</strong></div>
+                <div class="flex justify-between"><span class="opacity-60">Vitesse</span><strong>{{ stats.movespeed }}</strong></div>
+            </div>
+        </div>
+    </div>
+
+    {# Lore #}
+    <div class="card bg-base-200 md:col-span-2">
+        <div class="card-body">
+            <h2 class="card-title text-sm uppercase tracking-wide opacity-60 gap-1">
+                <i data-lucide="scroll-text" class="w-4 h-4"></i> Histoire
+            </h2>
+            <p class="text-sm text-base-content/70 leading-relaxed mt-2">{{ champion.lore }}</p>
+        </div>
+    </div>
+
+    {# Passive #}
+    <div class="card bg-base-200">
+        <div class="card-body">
+            <h2 class="card-title text-sm uppercase tracking-wide opacity-60 gap-1">
+                <i data-lucide="sparkles" class="w-4 h-4"></i> Passif
+            </h2>
+            <div class="flex gap-3 mt-2 items-start">
+                <img src="https://ddragon.leagueoflegends.com/cdn/{{ version }}/img/passive/{{ champion.passive.image.full }}"
+                     alt="{{ champion.passive.name }}"
+                     class="w-12 h-12 rounded-lg border border-base-300 flex-shrink-0" />
+                <div>
+                    <p class="font-semibold text-sm">{{ champion.passive.name }}</p>
+                    <p class="text-xs text-base-content/60 mt-1">{{ champion.passive.description|striptags }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Spells #}
+    <div class="card bg-base-200 md:col-span-2">
+        <div class="card-body">
+            <h2 class="card-title text-sm uppercase tracking-wide opacity-60 gap-1">
+                <i data-lucide="zap" class="w-4 h-4"></i> Sorts
+            </h2>
+            <div class="space-y-3 mt-2">
+                {% set keys = ['Q', 'W', 'E', 'R'] %}
+                {% for i, spell in champion.spells %}
+                <div class="flex gap-3 items-start">
+                    <div class="relative flex-shrink-0">
+                        <img src="https://ddragon.leagueoflegends.com/cdn/{{ version }}/img/spell/{{ spell.image.full }}"
+                             alt="{{ spell.name }}"
+                             class="w-12 h-12 rounded-lg border border-base-300" />
+                        <span class="absolute -top-1 -left-1 badge badge-xs badge-primary font-bold">{{ keys[i] ?? '' }}</span>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-sm">{{ spell.name }}</p>
+                        <p class="text-xs text-base-content/60 mt-1">{{ spell.description|striptags }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

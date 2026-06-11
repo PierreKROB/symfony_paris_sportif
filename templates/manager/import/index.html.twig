@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Importer des matchs LoL Esports{% endblock %}
+
+{% block body %}
+<div class="flex items-center gap-3 mb-6">
+    <i data-lucide="download-cloud" class="w-7 h-7 text-primary"></i>
+    <h1 class="text-2xl font-bold">Importer depuis LoL Esports</h1>
+</div>
+
+{% if events is empty %}
+<div class="alert alert-info">
+    <i data-lucide="info" class="w-5 h-5"></i>
+    <span>Aucun match à venir disponible pour le moment via l'API LoL Esports.</span>
+</div>
+{% else %}
+<div class="overflow-x-auto">
+    <table class="table table-zebra w-full">
+        <thead>
+            <tr>
+                <th>Match</th>
+                <th>Tournoi</th>
+                <th>Date</th>
+                <th>Statut</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for event in events %}
+            {% set match = event.match ?? {} %}
+            {% set teams = match.teams ?? [] %}
+            {% set teamA = teams[0] ?? {} %}
+            {% set teamB = teams[1] ?? {} %}
+            {% set nameA = teamA.name ?? '?' %}
+            {% set nameB = teamB.name ?? '?' %}
+            <tr>
+                <td>
+                    <div class="flex items-center gap-2">
+                        {% if teamA.image is defined and teamA.image %}
+                            <img src="{{ teamA.image }}" alt="{{ nameA }}" class="w-6 h-6 rounded" />
+                        {% endif %}
+                        <span class="font-semibold">{{ nameA }}</span>
+                        <span class="text-base-content/40">vs</span>
+                        <span class="font-semibold">{{ nameB }}</span>
+                        {% if teamB.image is defined and teamB.image %}
+                            <img src="{{ teamB.image }}" alt="{{ nameB }}" class="w-6 h-6 rounded" />
+                        {% endif %}
+                    </div>
+                </td>
+                <td class="text-sm text-base-content/60">{{ event.league.name ?? '—' }}</td>
+                <td class="text-sm font-mono">
+                    {% if event.startTime is defined %}
+                        {{ event.startTime|date('d/m/Y H:i') }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="badge badge-outline badge-sm">{{ event.state ?? '?' }}</span>
+                </td>
+                <td>
+                    <form method="post" action="{{ path('manager_import_save') }}">
+                        <input type="hidden" name="matchId"    value="{{ match.id ?? '' }}" />
+                        <input type="hidden" name="teamA"      value="{{ nameA }}" />
+                        <input type="hidden" name="teamB"      value="{{ nameB }}" />
+                        <input type="hidden" name="name"       value="{{ nameA }} vs {{ nameB }}" />
+                        <input type="hidden" name="tournament" value="{{ event.league.name ?? 'LoL Esports' }}" />
+                        <input type="hidden" name="teamAImage" value="{{ teamA.image ?? '' }}" />
+                        <input type="hidden" name="teamBImage" value="{{ teamB.image ?? '' }}" />
+                        <input type="hidden" name="startsAt"   value="{{ event.startTime ?? '' }}" />
+                        <button class="btn btn-sm btn-primary gap-1">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Importer
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

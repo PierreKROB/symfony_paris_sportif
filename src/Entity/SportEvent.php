@@ -16,6 +16,10 @@ class SportEvent
     const STATUS_FINISHED  = 'TERMINE';
     const STATUS_CANCELLED = 'ANNULE';
 
+    const SOURCE_MANUAL     = 'manual';
+    const SOURCE_RIOT       = 'riot_ranked';
+    const SOURCE_ESPORTS    = 'lol_esports';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -41,6 +45,24 @@ class SportEvent
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(length: 20, options: ['default' => 'manual'])]
+    private string $source = self::SOURCE_MANUAL;
+
+    #[ORM\Column(length: 150, nullable: true)]
+    private ?string $riotMatchId = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $riotPuuid = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $summonerName = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $teamALogoUrl = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $teamBLogoUrl = null;
 
     /**
      * @var Collection<int, Outcome>
@@ -141,6 +163,72 @@ class SportEvent
     {
         $this->createdAt = $createdAt;
 
+        return $this;
+    }
+
+    public function getSource(): string
+    {
+        return $this->source;
+    }
+
+    public function setSource(string $source): static
+    {
+        $this->source = $source;
+        return $this;
+    }
+
+    public function getRiotMatchId(): ?string
+    {
+        return $this->riotMatchId;
+    }
+
+    public function setRiotMatchId(?string $riotMatchId): static
+    {
+        $this->riotMatchId = $riotMatchId;
+        return $this;
+    }
+
+    public function getRiotPuuid(): ?string
+    {
+        return $this->riotPuuid;
+    }
+
+    public function setRiotPuuid(?string $riotPuuid): static
+    {
+        $this->riotPuuid = $riotPuuid;
+        return $this;
+    }
+
+    public function getSummonerName(): ?string
+    {
+        return $this->summonerName;
+    }
+
+    public function setSummonerName(?string $summonerName): static
+    {
+        $this->summonerName = $summonerName;
+        return $this;
+    }
+
+    public function getTeamALogoUrl(): ?string
+    {
+        return $this->teamALogoUrl;
+    }
+
+    public function setTeamALogoUrl(?string $teamALogoUrl): static
+    {
+        $this->teamALogoUrl = $teamALogoUrl;
+        return $this;
+    }
+
+    public function getTeamBLogoUrl(): ?string
+    {
+        return $this->teamBLogoUrl;
+    }
+
+    public function setTeamBLogoUrl(?string $teamBLogoUrl): static
+    {
+        $this->teamBLogoUrl = $teamBLogoUrl;
         return $this;
     }
 
