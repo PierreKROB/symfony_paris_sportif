@@ -1,0 +1,35 @@
+services:
+  app:
+    image: ghcr.io/pierrekrob/symfony_paris_sportif:main
+    restart: unless-stopped
+    ports:
+      - "3005:3005"
+    environment:
+      APP_ENV: prod
+      APP_DEBUG: "0"
+      APP_SECRET: ${APP_SECRET}
+      DATABASE_URL: ${DATABASE_URL}
+      RIOT_API_KEY: ${RIOT_API_KEY}
+      RIOT_PLATFORM: euw1
+      RIOT_REGION: europe
+      LOL_ESPORTS_API_KEY: ${LOL_ESPORTS_API_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: nexus_bet
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  db_data:

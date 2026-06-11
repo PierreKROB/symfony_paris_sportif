@@ -4,51 +4,90 @@ on:
   push:
     branches: [main]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ghcr.io/pierrekrob/symfony_paris_sportif
+
 jobs:
-  deploy:
-    name: Deploy to production
-    runs-on: self-hosted
+  build-and-push:
+    name: Build & push image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      image_tag: ${{ steps.meta.outputs.version }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Write .env.local
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=sha-
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:main
+          cache-to: type=inline
+
+  deploy:
+    name: Deploy to production
+    runs-on: self-hosted
+    needs: build-and-push
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy via docker-compose
         env:
           APP_SECRET: ${{ secrets.APP_SECRET }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          DATABASE_URL: mysql://root:${{ secrets.MYSQL_ROOT_PASSWORD }}@db:3306/nexus_bet?serverVersion=8.0&charset=utf8mb4
           RIOT_API_KEY: ${{ secrets.RIOT_API_KEY }}
           LOL_ESPORTS_API_KEY: ${{ secrets.LOL_ESPORTS_API_KEY }}
         run: |
-          cat > .env.local << EOF
-          APP_ENV=prod
-          APP_SECRET=${APP_SECRET}
-          DATABASE_URL=${DATABASE_URL}
-          RIOT_API_KEY=${RIOT_API_KEY}
-          RIOT_PLATFORM=euw1
-          RIOT_REGION=europe
-          LOL_ESPORTS_API_KEY=${LOL_ESPORTS_API_KEY}
-          EOF
+          mkdir -p "$HOME/nexus-bet"
+          cp docker-compose.prod.yml "$HOME/nexus-bet/docker-compose.prod.yml"
 
-      - name: Install dependencies
-        run: composer install --no-dev --optimize-autoloader --no-interaction
+          cd "$HOME/nexus-bet"
 
-      - name: Cache clear & warmup
-        run: |
-          php bin/console cache:clear --env=prod --no-debug
-          php bin/console cache:warmup --env=prod --no-debug
+          export APP_SECRET="$APP_SECRET"
+          export MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD"
+          export DATABASE_URL="$DATABASE_URL"
+          export RIOT_API_KEY="$RIOT_API_KEY"
+          export LOL_ESPORTS_API_KEY="$LOL_ESPORTS_API_KEY"
 
-      - name: Migrations
-        run: php bin/console doctrine:migrations:migrate --no-interaction --env=prod
-
-      - name: Install & restart service
-        run: |
-          sudo cp deploy/nexus-bet.service /etc/systemd/system/nexus-bet.service
-          sudo systemctl daemon-reload
-          sudo systemctl enable nexus-bet
-          sudo systemctl restart nexus-bet
+          docker compose -f docker-compose.prod.yml pull
+          docker compose -f docker-compose.prod.yml up -d --force-recreate
 
       - name: Health check
         run: |
-          sleep 2
+          sleep 5
           curl -sf http://127.0.0.1:3005 > /dev/null && echo "✓ App up" || echo "⚠ Health check failed"
